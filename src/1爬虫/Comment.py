@@ -12,9 +12,7 @@ requests.packages.urllib3.disable_warnings()
 
 headers = {
     "User-Agent": UserAgent().chrome,
-    'Cookie': 'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WF58r0wz.LuHTkNz.ER4zpW5NHD95QfSoBNSh50e0e4Ws4DqcjgKPzLxK-LB--L1hMLxK'
-              '-LB--L1hU4UBtt; SUB=_2A25y4fh2DeRhGeNI71UV8C3PyDWIHXVuLZg-rDV6PUJbktANLW3tkW1NSHD-DoxGYvdFmMAuhgEWj5j2HKYsE'
-              '-WF; _T_WM=57422500480 '
+    'Cookie': 'your cookie'
 }
 
 

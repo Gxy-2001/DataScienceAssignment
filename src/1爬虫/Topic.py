@@ -10,7 +10,9 @@ from time import sleep
 from datetime import datetime, timedelta
 from fake_useragent import UserAgent
 
-Cookie = 'your cookie'
+Cookie = 'SUBP=0033WrSXqPxfM725Ws9jqgMF55529P9D9WF58r0wz.LuHTkNz.ER4zpW5NHD95QfSoBNSh50e0e4Ws4DqcjgKPzLxK-LB--L1hMLxK' \
+         '-LB--L1hU4UBtt; SUB=_2A25y4fh2DeRhGeNI71UV8C3PyDWIHXVuLZg-rDV6PUJbktANLW3tkW1NSHD-DoxGYvdFmMAuhgEWj5j2HKYsE' \
+         '-WF; _T_WM=57422500480 '
 
 User_Agent = UserAgent().random
 mystart_day = 10
@@ -198,13 +200,10 @@ class WeiboTopicScrapy:
                 page1 = page
                 random_pages = random.randint(1, 3)
 
-        if self.got_num > wrote_num:
-            self.write_csv(wrote_num)
 
 
 def time_params_formatter(params_time, offset_day=0, offset_hour=-8):
     [temp_year, temp_month, temp_day, temp_hour] = [int(e) for e in params_time.split('-')]
-    print(temp_year)
     temp_date = datetime(year=temp_year, month=temp_month, day=temp_day, hour=temp_hour)
     temp_offset = timedelta(days=offset_day, hours=offset_hour)
     res_time = (temp_date + temp_offset).strftime('%Y-%m-%d-%H')
