@@ -2,7 +2,6 @@ import networkx as nx
 import jieba
 import jieba.analyse
 import pandas as pd
-import re
 from pre import clean_text
 
 
@@ -19,33 +18,25 @@ def readLines(filename):
 stopwords = readLines('stop_words.txt')
 
 
-def myTextRank(text, boo):
-    block_pos = text.split('\n')
+def myTextRank(text, boo, leng=5):
+    text = clean_text(text)
     block_words = []
-    for i in range(len(block_pos)):
-        if len(block_pos[i]) > 1:
-            temp = list(jieba.cut(block_pos[i]))
-            l = []
-            for word in temp:
-                if (word not in stopwords) and (len(word) > 1):
-                    l.append(word)
-            block_words.append(l)
-    kwds = textrank(block_words, 5, boo)
+    if len(text) > 1:
+        temp = list(jieba.cut(text))
+        l = []
+        for word in temp:
+            if (word not in stopwords) and (len(word) > 1):
+                l.append(word)
+        block_words.append(l)
+    kwds = textrank(block_words, leng, boo)
     return kwds
 
 
-def textrank(block_words, topK, with_score=False, window=2, weighted=False):
+def textrank(block_words, topK, with_score=False):
     G = nx.Graph()
     for word_list in block_words:
-        for u, v in combine(word_list, window):
-            if not weighted:
-                G.add_edge(u, v)
-            else:
-                if G.has_edge(u, v):
-                    G[u][v]['weight'] += 1
-                else:
-                    G.add_edge(u, v, weight=1)
-
+        for u, v in combine(word_list, 2):
+            G.add_edge(u, v)
     pr = nx.pagerank_scipy(G)
     pr_sorted = sorted(pr.items(), key=lambda x: x[1], reverse=True)
     if with_score:
@@ -55,7 +46,6 @@ def textrank(block_words, topK, with_score=False, window=2, weighted=False):
 
 
 def combine(word_list, window=2):
-    if window < 2: window = 2
     for x in range(1, window):
         if x >= len(word_list):
             break
@@ -93,8 +83,17 @@ if __name__ == "__main__":
     result = [x[1] for x in pairs]
     print(result)
 
-    file = open('示例关键词.txt', 'a+', encoding='utf-8')
-    for i in range(len(result)):
-        file.write(str(result[i]) + '\n')
-    file.close()
-    print("保存文件成功")
+    # file = open('示例关键词.txt', 'a+', encoding='utf-8')
+    # for i in range(100):
+    #     file.write(str(result[i]) + '\n')
+    # file.close()
+    # print("保存文件成功")
+
+    s = '2月9日凌晨1点40分，我县接到紧急通知，需要再增派5名相关医务人员，赴湖北支援新冠肺炎救治工作' \
+        '。驰援号角再次吹响！8时便确定了上报名单。中午12时15分，安吉5' \
+        '名医务人员仅在十小时内，安排好工作，安抚好家人，完成集结，整装出发！他们分别是县人民医院黄志辉、' \
+        '县中医院邱蔚晨和周海月、安吉二院叶苑、安吉三院王志英，作为浙江省第三批抗击新冠肺炎紧急医疗队成员驰援湖北' \
+        '。此前，我县已有县人民医院汪学丽、罗玉红2名医务人员驰援武汉 '
+
+    print(myTextRank(s, False, 10))
+    print(jieba.analyse.textrank(s))

@@ -1,3 +1,5 @@
+
+
 # COVID-19背景下基于微博文本的网络心态分析
 
 ## 	1.  摘要
@@ -196,23 +198,321 @@ text = text.strip()
 
 #### 3.2.2. 去停用词和分词
 
-停用词表我使用的是一份开源的中文停用词表，分词使用`jieba`分词的精确模式
+停用词表我使用的是一份开源的中文停用词表，分词使用`jieba`分词的精确模式，对于一些未登录词，结巴采用了基于汉字成词能力的隐马尔可夫模型，使用了维特比算法，能更好的处理微博文本中的一小部分网络词汇。
 
 ```python
 jieba.cut(line, cut_all=False, HMM=True)
 ```
 
-#### 3.2.3. 提取关键词
+#### 3.2.3. textRank关键词提取
+
+textRank算法基于pageRank算法的思想，首先来介绍一下pageRank。它用于计算网页的重要性，认为网页的重要性由两部分组成，一是被链接网页的数量，二是被链接网页的权重，计算公式如下：
+
+<img src="essay.assets/PageRank.png" alt="PageRank" style="zoom:61%;" />
+
+PR(V<sub>i</sub>)表示第i个网页重要性值即PR值，d是一个阻尼系数，可以设置为0.85，In(V<sub>i</sub>)表示对第i个有出链的网页集合，Out(V<sub>j</sub>)表示第j个网页的出链网页数。初始时设置所有网页排名相同，然后加以迭代，平稳后即得结果。
+
+
+
+textRank算法是对pageRank算法的改进，它将文本拆分为词汇组成词汇网，利用局部词汇(即窗口)的关系，对词语排序。可以从下面的textRank计算公式看出，相比于pageRank，其算法仅仅加入了权重W<sub>ji</sub>来标志词间重要程度不同。
+
+![TextRank](essay.assets/TextRank.png)
+
+算法实现时，先将文本进行分词、去停用词等预处理步骤，还可以对词性进行筛选，只保留特定的词性。然后开始构建关键词图，利用共现关系构造两点之间的边，如果其在长度为`k`的窗口中同时出现则认为两点间存在边，然后依据上述公式进行迭代直至收敛，最后就会得到个词的权重，进行排序即可获知关键词。
+
+核心代码展示
+
+```python
+#首先对文本进行清洗，分词和去除停用词
+text = clean_text(text)
+jieba.cut(text,HMM=True)
+if (word not in stopwords) and (len(word) > 1):l.append(word)
+#然后将每个文本清洗后的结果l放入block_words，传入textRank，可得结果
+kwds = textRank(block_words, 5, boo)
+
+def textRank(block_words, topK, with_score=False):
+    G = nx.Graph()
+    for word_list in block_words:
+        for u, v in combine(word_list, 2):
+            G.add_edge(u, v)
+    pr = nx.pagerank_scipy(G)
+    pr_sorted = sorted(pr.items(), key=lambda x: x[1], reverse=True)
+    if with_score:
+        return pr_sorted[:topK]
+    else:
+        return [w for (w, imp) in pr_sorted[:topK]]
+    
+def combine(word_list, window=2):
+    for x in range(1, window):
+        if x >= len(word_list):
+            break
+        word_list2 = word_list[x:]
+        res = zip(word_list, word_list2)
+        for r in res:
+            yield r
+            
+# 效果展示
+原文：'2月9日凌晨1点40分，我县接到紧急通知，需要再增派5名相关医务人员，赴湖北支援新冠肺炎救治工作。驰援号角再次吹响！8时便确定了上报名单。中午12时15分，安吉5名医务人员仅在十小时内，安排好工作，安抚好家人，完成集结，整装出发！他们分别是县人民医院黄志辉、县中医院邱蔚晨和周海月、安吉二院叶苑、安吉三院王志英，作为浙江省第三批抗击新冠肺炎紧急医疗队成员驰援湖北。此前，我县已有县人民医院汪学丽、罗玉红2名医务人员驰援武汉'
+前十个关键词：['安吉', '驰援', '医务人员', '医院', '工作', '湖北', '新冠', '肺炎', '接到', '紧急通知']
+```
 
 
 
 ### 3. 数据分析
 
-#### 3.3.1.
+#### 3.3.1. 情绪词典
+
+##### 3.3.1.1. SO-PMI新词发现
+
+##### 3.3.1.2. 情感计算
+
+情感计算需要准备情感词表，否定词和程词表，情感计算规则
 
 
+
+情感类型和强度方面，本作业采用了[Boson情感词典](https://bosonnlp.com/dev/resource)，并基于上述SO-PMI算法对原有词典进行了补充，将发现的新词按强度值为1拓展了原有词典。下面展示一些示例，
+
+```
+积极词示例：
+    爽朗 2.1359760295
+    大步 2.13600542481
+    欢声笑语 2.15198331531
+    喜报 3.03301490396
+消极示例：
+    住嘴 -1.58328814932
+    惨淡 -1.57775898103
+    忧心忡忡 -1.59476173694
+    恶性 -1.59597143208
+```
+
+
+
+程度词部分，本次作业使用知网程度词表，我们人工也对其进行了简化，选取了较多的日常程度副词，按程度大致分为四个等级，并对每个等级赋予了相应的程度权值，具体内容如下。
+
+|         级别          |        示例词语        | 权重 |
+| :-------------------: | :--------------------: | :--: |
+| 极 extreme \| 最 most | 极度、极端、绝对、完全 |  4   |
+|        很 very        | 多么、分外、格外、很是 |  3   |
+|  更 more \| 较 more   | 更加、较为、愈发、越是 |  2   |
+|        稍 -ish        | 稍微、稍稍、略微、一点 |  1   |
+
+
+
+否定词部分，本次作业采用知网否定词表，在这里不用展示了。
+
+
+
+我们还需要考虑情感词和否定词，程度词的组合情况，当只有情感词在组合中起到了情感表达作用时，则只需要考虑情感词的情感；当否定词和情感词共同在组合中起到了情感表达作用，如“不满意”则表示与“满意”相反的情感；当程度副词和情感词共同在组合中起到了情感表达作用时，程度词对情感词有一个加强的作用；当否定词、程度副词及情感词共同在组合中起到了情感表达作用，我们只需要将其分开考虑；当程度副词、否定词及情感词共同在组合中起到了情感表达作用，我们认为效果和之前一种情况类似；最后，多个否定词及情感词共同在组合中起到了情感表达作用则每有一个否定词就否定一重情感值即可。综上，这些情感组合模式已经涵盖了大部分的规则，具体如下：e表示情感值结果，P表示情感词对应的情感值，A表示程度副词程度值。
+
+| 序号 |           类型           |      结果       |
+| :--: | :----------------------: | :-------------: |
+|  1   |       只含有情感词       |      e = P      |
+|  2   |     否定词 + 情感词      |  e = (-1) * P   |
+|  3   |     程度词 + 情感词      |    e = A * P    |
+|  4   | 否定词 + 程度词 + 情感词 | e= (-1) * A * P |
+|  5   | 否定词 + 否定词 + 情感词 |      e = P      |
+|  6   | 程度词 + 否定词 + 情感词 | e = (-1) * A* P |
+
+对于一个句子来说，e<sub>i</sub>表示每个情感词组合的情感值，N<sub>p</sub>+N<sub>n</sub>表示正向情感词组合数和负向情感词组合数之和，E<sub>i</sub>表示每个句子的情感值，E就是整个短文本微博的情感值。
+
+<img src="essay.assets/单句情感值.png" alt="单句情感值" style="zoom:40%;" />
+
+<img src="essay.assets/短文本情感值.png" alt="短文本情感值" style="zoom:40%;" />
+
+算法的具体流程图如下，后三步就主要是累加的过程：
+
+<img src="essay.assets/情感词典.jpg" alt="情感词典" style="zoom:50%;" />
+
+核心代码解释：
+
+```python
+# 核心循环如下
+# 首先对短文本数据清洗，分句分词
+datafen_dist = sent2word(d)
+# 为了减少下一步操作的复杂性，先将词的种类区分
+data_1 = classifyWords(datafen_dist, words_vaule[0], words_vaule[1], words_vaule[2])
+# 计算情感值，在这个函数中计算了组合的情感值，句子的情感值并将它们累加
+data_2 = scoreSent(data_1[0], data_1[1], data_1[2],returnsegResult(data[0]))
+# 保存
+score_var.append(data_2)
+```
+
+效果示例：
+
+```python
+'她不讲道理:疫情夹杂着雨水 气氛变得诡异 大年三十好像 红火的难过着我真的好害怕…… '     
+情感值：-2.4441889162743
+
+'i狸追:#疫情地图##全国确诊新型肺炎病例# 我求求你们了，别乱跑了行么，现在被你们折腾的全国都沦陷了'  
+情感值：-5.678527271838299
+
+'回复@不知名的微博z:看到您们的评论笑死我了，哈哈哈'
+情感值：5.2873025592616
+```
+
+#### 3.3.2. 多维情感分析
+
+
+
+#### 3.3.3. 热点分析
+
+##### 3.3.3.1. Agglomerative层次聚类
+
+层次聚类是一种常见的聚类算法，将不同类别数据间的相似度构建一颗有层次的嵌套聚类树，聚类树中不同类别的原始数据是树的最底层，而顶层自然是结果`cluster`，层次聚类的后面一次结果都贪心的基于前一层的结果，这里主要介绍自底向上的层次聚类，不断的合并最终会生成一个簇。
+
+树形图一般用以直观表示层次聚类成果，纵坐标高度表示不同簇之间的距离，为了得到某个聚类结果，可以使任一条竖直线对其切割，即可获得对应的聚类结果。实现中我们基于上文完成的textRank算法计算出每个短微博文本的前20个关键词，然后基于`scikit-Learn`中的向量化器对其进行向量化和`fit`，然后调用其提供的`AgglomerativeClustering`进行聚类，衡量距离的方法选择常用的`'ward'`，其余可用的还有`'single'`、 `'complete'` 、`'average'`、 `'weighted'`、 `'centroid'`、 `'median'`，之后生成相应的效果树状图。下面的图片是对本次爬取的实验示例数据的一个测试：
+
+<img src="essay.assets/层次聚类示例.png" alt="层次聚类示例" style="zoom:20%;" />
+
+为了确定不同聚类数对效果的影响，我分别对其计算了**轮廓系数（Silhouette Coefficient）**，**CH分数（Calinski Harabasz Score ）**和**戴维森堡丁指数(DBI，davies_bouldin_score）**，这三个无标签评价函数是常见的分析聚类效果的函数，具体的分析在本小节的第四部分，暂时可以先看一下结果。可以从下图看出，DBI指数在聚类数设置为3或6时较低，CH值在2或3时较高，轮廓系数较为明显，呈现先增加后减少的趋势，总之聚类数选3比较适宜。
+
+<img src="essay.assets/层次聚类数.jpg" alt="层次聚类数" style="zoom:70%;" />
+
+
+
+```python
+# 核心代码解释
+# 首先读取关键词文件，此关键词文件基于上步textRank算法生成
+text = open('key.txt', encoding='utf-8').read()
+list1 = text.split("\n")
+# 调用sklearn的相关向量化器和聚类器
+count_vec = CountVectorizer(min_df=3)
+xx1 = count_vec.fit_transform(list1).toarray()
+ac = AgglomerativeClustering(n_clusters=num, affinity='euclidean', linkage='ward')
+labels = ac.fit_predict(xx1)
+# 使用matplotlib对树状图进行初步的可视化展示
+plt.scatter(xx1[:, 0], xx1[:, 1], c=labels)
+plt.show()
+```
+
+
+
+##### 3.3.3.2. K-means聚类
+
+K-means算法是一种基于划分的聚类算法，他必须传入一个参数`k`作为簇的个数，然后将数据对象划分，是的簇内相似度较高，簇间相似度较低，其基本思想是根据给定的数据，先随机选择`k`个数据作为簇中心，然后根据剩余数据与簇心的距离将它赋给最进的簇心，并重新计算每个簇中对象距离均值重新确定簇心，几次迭代后函数就趋近于收敛，即簇心不再明显变化。
+
+K-means聚类算法保证了局部最优，但是很明显，他的缺点在于需要认为的设定`k`值，这个值对聚类效果的影响很大，不同的值得到的结果不同，且根据定义来看，此种聚类方法对于异常值和样本分类不均衡的分类效果不友好，因为我们需要确定簇数设定为多少时效果最好，下图是`k`分别取2，3，5时的聚类效果，可以看出`k`取2时分类效果较好。
+
+<img src="essay.assets/kmeans对比.jpg" alt="kmeans对比" style="zoom:50%;" />
+
+下图是`k`取不同值时的三种评价函数值，可以看出`k=2`时轮廓系数最大，DBI值最小，k适合取2。
+
+<img src="essay.assets/kmeans聚类数.jpg" alt="kmeans聚类数" style="zoom:70%;" />
+
+
+
+```python
+# 核心代码讲解
+# 首先读文件
+filepath = 'sample_data.csv'
+df = pd.read_csv(filepath, index_col=0, )
+# 对文件进行预处理，包括使用上文的clean_text函数对文本进行清洗，包括简单的筛选词性和jieba分词，利用停用词表对文本去停用词
+preProcess(df)
+# 简单的去重
+word_library_list = list(set(flat((df['content_cut']))))
+# 使用sklearn提供的矢量化器对文本进行矢量化，首先计算适合的特征词数
+single_frequency_words_list = get_single_frequency_words(df['content_cut'])
+max_features = (len(word_library_list) - len(single_frequency_words_list))
+matrix = feature_extraction(df['content_'], vectorizer='TfidfVectorizer',
+                            vec_args={'max_df': 0.95, 'min_df': 1, 'max_features': max_features})
+# 使用sklearn提供的聚类器聚类
+kmeans = KMeans(n_clusters=2, random_state=9).fit(matrix)
+# 计算聚类三种评价函数
+score = metrics.calinski_harabasz_score(matrix.toarray(), kmeans.labels_)
+print(score)
+print(metrics.silhouette_score(matrix.toarray(), kmeans.labels_))  
+print(metrics.davies_bouldin_score(matrix.toarray(), kmeans.labels_))
+# 对聚类结果降维和可视化
+labels = kmeans.labels_
+df['label'] = labels
+df['matrix'] = matrix.toarray().tolist()
+df_non_outliers = df[df['label'] != -1].copy()
+data_pca_tsne = feature_reduction(df_non_outliers['matrix'].tolist(), pca_n_components=3, tsne_n_components=2)
+# 使用matplotlib对降维结果可视化
+plt.figure()
+x = [i[0] for i in data_pca_tsne]
+y = [i[1] for i in data_pca_tsne]
+plt.scatter(x, y, c=label)
+```
+
+
+
+##### 3.3.3.3. DBSCAN密度聚类
+
+`DBSCAN`算法是一种基于密度的聚类算法，它在聚类前不需要预先指定簇的个数，所以最终簇的个数也不确定，它认为样本数据点的周围的数据点同属一类，即将紧密相连的样本划分为一类，就得到了一个个簇。此类算法需要不断的调整参数`eps`以求得最好的效果，发现DBI值呈明显上升趋势，而CH值和轮廓系数效果不明显，所以DBSCAN聚类算法参数`eps`暂取0.01。
+
+
+
+<img src="essay.assets/DBSCAN聚类数.jpg" alt="DBSCAN聚类数" style="zoom:50%;" />
+
+```python
+# 核心代码讲解
+# 前几步与k-means步骤类似
+filepath = 'sample_data.csv'
+df = pd.read_csv(filepath, index_col=0, )
+preProcess(df)
+word_library_list = list(set(flat((df['content_cut']))))
+# 使用sklearn提供的矢量化器对文本进行矢量化，首先计算适合的特征词数
+single_frequency_words_list = get_single_frequency_words(df['content_cut'])
+max_features = (len(word_library_list) - len(single_frequency_words_list))
+matrix = feature_extraction(df['content_'], vectorizer='TfidfVectorizer',vec_args={'max_df': 0.95, 'min_df': 1, 'max_features': max_features})
+# 使用sklearn提供的聚类器聚类，使用DBSCAN聚类器
+dbscan = DBSCAN(eps=eps_var, min_samples=min_samples_var, metric='cosine').fit(matrix)
+# 计算聚类三种评价函数
+score = metrics.calinski_harabasz_score(matrix.toarray(), dbscan.labels_)
+print(score)
+print(metrics.silhouette_score(matrix.toarray(), dbscan.labels_))  
+print(metrics.davies_bouldin_score(matrix.toarray(), dbscan.labels_))
+# 下面步骤与kmeans类似
+labels = dbscan.labels_
+df['label'] = labels
+df['matrix'] = matrix.toarray().tolist()
+df_non_outliers = df[df['label'] != -1].copy()
+data_pca_tsne = feature_reduction(df_non_outliers['matrix'].tolist(), pca_n_components=3, tsne_n_components=2)
+plt.figure()
+x = [i[0] for i in data_pca_tsne]
+y = [i[1] for i in data_pca_tsne]
+plt.scatter(x, y, c=label)
+```
+
+
+
+##### 3.3.3.4. 三种聚类评价函数
+
+**轮廓系数(Silhouette Coefficient)**，是聚类效果好坏的一种评价方式。它结合内聚度和分离度两种因素。可以用来在相同原始数据的基础上用来评价不同算法、或者算法不同运行方式对聚类结果所产生的影响。根据每个样本到其他同簇样本距离生成一个簇内不相似度，再由此产生一个s<sub>i</sub>来代表具体样本聚类好坏程度，s<sub>i</sub>接近1，则说明样本i聚类合理；s<sub>i</sub>接近-1，则说明样本i更应该分类到另外的簇；若s<sub>i</sub> 近似为0，则说明样本i在两个簇的边界上，求所有的s<sub>i</sub>再取均值就是轮廓系数。
+
+```python
+# 调用sklearn的接口来计算
+score2 = metrics.silhouette_score(matrix.toarray(), labels_)
+```
+
+**CH值(Calinski Harabasz Score)**，CH值依据簇间色散平均值和群内色散间和来确定，簇内的协方差越小，簇间的协方差越大时，聚类效果较好，且CH值越大。
+
+```python
+# 调用sklearn的接口来计算
+metrics.calinski_harabasz_score(matrix.toarray(), labels_)
+```
+
+**戴维森堡丁指数(davies_bouldin_score)**，简称DBI，这也是个常见的评价聚类效果好坏的值，DBI的最小值为0，值越小代表效果越好。
+
+```python
+# 调用sklearn的接口来计算
+metrics.davies_bouldin_score(matrix.toarray(), labels_)
+```
+
+
+
+选择上述三种聚类方法进行横向对比，相应的参数则尽可能选择效果更好的。从下面的图标可以看出层次聚类的轮廓系数更接近1，CH也更大，明显更适合做微博样本的聚类方法。
+
+|    聚类方法\评价函数     | 轮廓系数 |  CH值  |  DBI  |
+| :----------------------: | :------: | :----: | :---: |
+|   **K-means( k = 2 )**   |  0.067   | 95.22  | 1.940 |
+| **DBSCAN( eps = 0.01 )** |  0.122   | 15.96  | 0.988 |
+|    **层次( k = 3 )**     |  0.426   | 153.78 | 1.905 |
 
 ### 4. 数据可视化
+
+本次作业数据可视化部分主要使用`pyecharts`库，还有一部分使用`matplotlib`，具体的应用详见图片即可。
 
 ## 4. 案例
 
