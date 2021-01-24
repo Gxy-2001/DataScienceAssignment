@@ -83,11 +83,11 @@ if __name__ == "__main__":
     result = [x[1] for x in pairs]
     print(result)
 
-    # file = open('示例关键词.txt', 'a+', encoding='utf-8')
-    # for i in range(100):
-    #     file.write(str(result[i]) + '\n')
-    # file.close()
-    # print("保存文件成功")
+    file = open('示例关键词.txt', 'a+', encoding='utf-8')
+    for i in range(100):
+        file.write(str(result[i]) + '\n')
+    file.close()
+    print("保存文件成功")
 
     s = '2月9日凌晨1点40分，我县接到紧急通知，需要再增派5名相关医务人员，赴湖北支援新冠肺炎救治工作' \
         '。驰援号角再次吹响！8时便确定了上报名单。中午12时15分，安吉5' \

@@ -129,39 +129,11 @@ def label2rank(labels_list):
 
 
 def feature_reduction(matrix, pca_n_components=50, tsne_n_components=2):
-    """降维"""
     data_pca = PCA(n_components=pca_n_components).fit_transform(matrix) if pca_n_components is not None else matrix
     data_pca_tsne = TSNE(n_components=tsne_n_components).fit_transform(
         data_pca) if tsne_n_components is not None else data_pca
     print('data_pca_tsne.shape=', data_pca_tsne.shape)
     return data_pca_tsne
-
-
-def draw_clustering_analysis_barh(rank_num, value, yticks, title):
-    """绘制聚类分析结果条形图"""
-    plt.figure(figsize=(13, 6), dpi=100)
-    plt.subplot(122)
-    ax = plt.gca()
-    ax.spines['left'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.invert_yaxis()
-    plt.barh(range(1, rank_num + 1), value, align='center', linewidth=0)
-    plt.yticks(range(1, rank_num + 1), yticks)
-    for a, b in zip(value, range(1, rank_num + 1)):
-        plt.text(a + 1, b, '%.0f' % a, ha='left', va='center')
-    plt.title(title)
-    # plt.savefig('2.jpg')
-    plt.show()
-
-
-def draw_clustering_analysis_pie(rank_num, value, yticks, title):
-    """绘制聚类分析结果饼图"""
-    plt.figure(figsize=(13, 6), dpi=100)
-    plt.subplot(132)
-    plt.pie(value, explode=[0.2] * rank_num, labels=yticks, autopct='%1.2f%%', pctdistance=0.7)
-    plt.title(title)
-    plt.show()
 
 
 # def test(n):
@@ -212,17 +184,3 @@ if __name__ == '__main__':
     plt.scatter(x, y, c=label)
     plt.savefig('DBSCAN示例.jpg')
     plt.show()
-
-    rank_num = len(set((df_non_outliers['rank'])))
-    value = [df_non_outliers[df_non_outliers['rank'] == i].shape[0] for i in range(1, rank_num + 1)]
-    yticks1 = [str(get_most_common_words(df_non_outliers[df_non_outliers['rank'] == i]['content_cut'],
-                                         top_n=10)) + str(i) for i in range(1, rank_num + 1)]
-
-    draw_clustering_analysis_barh(rank_num, value, yticks1, title='热点新闻分布条形图')
-    draw_clustering_analysis_pie(rank_num, value, yticks1, title='热点新闻分布饼图')
-
-#
-# file = open('DBSCAN聚类数.txt', 'a+', encoding='utf-8')
-# for eps in np.arange(0.001, 1, 0.05):
-#     data = test(eps)
-#     file.write(str(eps) + " " + str(data[0]) + " " + str(data[1]) + " " + str(data[2]) + '\n')

@@ -370,7 +370,7 @@ score_var.append(data_2)
 
 <img src="essay.assets/层次聚类数.jpg" alt="层次聚类数" style="zoom:70%;" />
 
-
+<img src="essay.assets/层次示例.jpg" alt="层次示例" style="zoom:80%;" />
 
 ```python
 # 核心代码解释
@@ -542,13 +542,69 @@ metrics.davies_bouldin_score(matrix.toarray(), labels_)
 
 ### 4.3. 数据分析
 
-#### 4.3.1. 心态值计算
+<img src="essay.assets/阶段和典型事件.jpg" alt="阶段和典型事件" style="zoom:50%;" />
+
+总体上：
+
+四个大阶段的多维分析：区别不明显
+
+<img src="essay.assets/四阶段多维.jpg" alt="四阶段多维" style="zoom:50%;" />
+
+精确到每天的情感值：不明显
+
+<img src="essay.assets/百天情感趋势图.jpg" alt="百天情感趋势图" style="zoom:50%;" />
+
+阶段聚类：阶段热点词分析
 
 
 
-#### 4.3.2. 多维心态分析
+#### 4.3.1. 阶段一典型事件：“人传人”
 
-#### 4.3.3. 热点聚类分析
+1月20日晚间，国家卫健委高级别专家组组长钟南山院士在接受央视连线时明确表示，目前可以肯定，此次新型冠状病毒感染的肺炎，存在人传人的现象。
+
+![人传人情感对比](essay.assets/人传人情感对比.jpg)
+
+
+
+<img src="essay.assets/人传人.png" alt="人传人" style="zoom:50%;" />
+
+<img src="essay.assets/人传人多维.jpg" alt="人传人多维" style="zoom:70%;" />
+
+#### 4.3.2. 阶段二典型事件：“武汉封城”
+
+武汉市新型冠状病毒感染的肺炎疫情防控指挥部今天清晨发布通告，自 2020 年 1 月 23 日 10 时起，全市城市公交、地铁、轮渡、长途客运暂停运营；无特殊原因，市民不要离开武汉，机场、火车站离汉通道暂时关闭。恢复时间另行通告。这是一个无比艰难的决定。很可能人类历史上第一次对一个超千万人口的城市采取的最严厉的防疫措施，但这体现了中国政府防控疫情的决心。
+
+
+
+
+
+![武汉封城情感值对比](essay.assets/武汉封城情感值对比.jpg)
+
+<img src="essay.assets/封城.png" alt="封城" style="zoom:50%;" />
+
+<img src="essay.assets/武汉封城多维.jpg" alt="武汉封城多维" style="zoom:70%;" />
+
+#### 4.3.3. 阶段三典型事件：“对口支援”
+
+
+
+![对口支援情感值对比](essay.assets/对口支援情感值对比.jpg)
+
+<img src="essay.assets/对口支援词云.png" alt="对口支援词云" style="zoom:50%;" />
+
+
+
+<img src="essay.assets/对口支援.jpg" alt="对口支援" style="zoom:70%;" />
+
+#### 4.3.4. 阶段四典型事件：“复工复产”
+
+
+
+![复工复产情感值对比](essay.assets/复工复产情感值对比.jpg)
+
+<img src="essay.assets/复工复产.png" alt="复工复产" style="zoom:50%;" />
+
+<img src="essay.assets/复工复产.jpg" alt="复工复产" style="zoom:70%;" />
 
 ## 5. 结论
 

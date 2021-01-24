@@ -117,7 +117,7 @@ def words():
     exList = readLines2('extra.txt')
     exDict = defaultdict()
     for x in exList:
-        exDict[x.strip(' ')[0]] = x.strip(' ')[1]
+        exDict[x.split(' ')[0]] = x.split(' ')[1]
 
     notList = readLines2('notDict.txt')
     degreeList = readLines2('degreeDict.txt')
@@ -182,32 +182,39 @@ def text_save(filename, data):
 
 
 if __name__ == "__main__":
-    filepwd = eachFile("test")
-    score_var = []
-    words_vaule = words()
-    for x in filepwd:
-        data, fens = readLines(x)
-        i = 0
-        for d in data:
-            if str(fens[i]).isdigit() and int(fens[i]) < 10000:
-                datafen = sent2word(d)
-                datafen_dist = listToDist(datafen)
-                data_1 = classifyWords(datafen_dist, words_vaule[0], words_vaule[1], words_vaule[2], words_vaule[3])
-                data_2 = scoreSent(data_1[0], data_1[1], data_1[2], returnsegResult(data[0]))
-                score_var.append(data_2)
-            i = i + 1
-        i = 0
-        text_save(x.replace('test', 'result'), score_var)
-        score_var = []
+    # filepwd = eachFile("test")
+    # score_var = []
+    # words_vaule = words()
+    # for x in filepwd:
+    #     data, fens = readLines(x)
+    #     i = 0
+    #     for d in data:
+    #         if (str(fens[i]).isdigit() and int(fens[i]) < 10000) or (
+    #                 str(fens[i]).count(".") == 1 and not str(fens[i]).startswith(".") and not str(fens[i]).endswith(
+    #                 ".") and float(fens[i]) < 10000):
+    #             datafen = sent2word(d)
+    #             datafen_dist = listToDist(datafen)
+    #             data_1 = classifyWords(datafen_dist, words_vaule[0], words_vaule[1], words_vaule[2], words_vaule[3])
+    #             data_2 = scoreSent(data_1[0], data_1[1], data_1[2], returnsegResult(data[0]))
+    #             if data_2 > 0.5 or data_2 < 0:
+    #                 score_var.append(data_2)
+    #         i = i + 1
+    #     i = 0
+    #     text_save(x.replace('test', 'result'), score_var)
+    #     score_var = []
 
-# def f(s):
-#     words_vaule = words()
-#     datafen = sent2word(s)
-#     datafen_dist = listToDist(datafen)
-#     data_1 = classifyWords(datafen_dist, words_vaule[0], words_vaule[1], words_vaule[2])
-#     data_2 = scoreSent(data_1[0], data_1[1], data_1[2], returnsegResult(s))
-#     print(data_2)
-# if __name__ == "__main__":
-#     f('她不讲道理:疫情夹杂着雨水 气氛变得诡异 大年三十好像 红火的难过着我真的好害怕…… ')
-#     f('i狸追:#疫情地图##全国确诊新型肺炎病例# 我求求你们了，别乱跑了行么，现在被你们折腾的全国都沦陷了')
-#     f('回复@不知名的微博z:看到您们的评论笑死我了，哈哈哈')
+    files = eachFile('特定事件')
+    file = open('特定事件result.txt', 'a+', encoding='utf-8')
+    for x in files:
+        fopen = open(x, 'r', encoding='utf-8')
+        num = 0
+        sum = 0
+        for j in fopen.readlines():
+            num = num + 1
+            sum = sum + float(j)
+        t = 0
+        for j in range(len(x)):
+            if x[j].isdigit():
+                t = j
+                break
+        file.write(x[t:-4] + "   " + str(sum / num) + '\n')

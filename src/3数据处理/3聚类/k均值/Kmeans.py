@@ -92,13 +92,6 @@ def get_single_frequency_words(list1):
     return list3
 
 
-def get_most_common_words(list1, top_n=None, min_frequency=1):
-    list2 = flat(list1)
-    cnt = Counter(list2)
-    list3 = [i[0] for i in cnt.most_common(top_n) if cnt[i[0]] >= min_frequency]
-    return list3
-
-
 def feature_extraction(series, vec_args):
     vec_args_list = ['%s=%s' % (i[0],
                                 "'%s'" % i[1] if isinstance(i[1], str) else i[1]
@@ -130,31 +123,6 @@ def feature_reduction(matrix, pca_n_components=50, tsne_n_components=2):
     return data_pca_tsne
 
 
-def draw_clustering_analysis_barh(rank_num, value, yticks, title):
-    plt.figure(figsize=(13, 6), dpi=100)
-    plt.subplot(122)
-    ax = plt.gca()
-    ax.spines['left'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['top'].set_visible(False)
-    ax.invert_yaxis()
-    plt.barh(range(1, rank_num + 1), value, align='center', linewidth=0)
-    plt.yticks(range(1, rank_num + 1), yticks)
-    for a, b in zip(value, range(1, rank_num + 1)):
-        plt.text(a + 1, b, '%.0f' % a, ha='left', va='center')
-    plt.title(title)
-    # plt.savefig('2.jpg')
-    plt.show()
-
-
-def draw_clustering_analysis_pie(rank_num, value, yticks, title):
-    plt.figure(figsize=(13, 6), dpi=100)
-    plt.subplot(132)
-    plt.pie(value, explode=[0.2] * rank_num, labels=yticks, autopct='%1.2f%%', pctdistance=0.7)
-    plt.title(title)
-    plt.show()
-
-
 if __name__ == '__main__':
     filepath = 'sample_data.csv'
     df = pd.read_csv(filepath, index_col=0, )
@@ -181,9 +149,6 @@ if __name__ == '__main__':
 
     df_non_outliers = df[df['label'] != -1].copy()
 
-    rank_num = len(set((df_non_outliers['rank'])))
-    # print("有", rank_num, "类")
-
     data_pca_tsne = feature_reduction(df_non_outliers['matrix'].tolist(), pca_n_components=3, tsne_n_components=2)
 
     plt.rcParams['font.family'] = ['sans-serif']
@@ -199,11 +164,3 @@ if __name__ == '__main__':
     plt.scatter(x, y, c=label)
     plt.savefig('kmeans示例.jpg')
     plt.show()
-
-    rank_num = len(set((df_non_outliers['rank'])))
-    value = [df_non_outliers[df_non_outliers['rank'] == i].shape[0] for i in range(1, rank_num + 1)]
-    yticks1 = [str(get_most_common_words(df_non_outliers[df_non_outliers['rank'] == i]['content_cut'],
-                                         top_n=10)) + str(i) for i in range(1, rank_num + 1)]
-
-    draw_clustering_analysis_barh(rank_num, value, yticks1, title='热点条形图')
-    draw_clustering_analysis_pie(rank_num, value, yticks1, title='热点饼图')
