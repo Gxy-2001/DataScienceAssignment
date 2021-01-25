@@ -56,7 +56,7 @@ def combine(word_list, window=2):
 
 
 def extract_keywords():
-    df = pd.read_csv('simple.csv', index_col=0, )
+    df = pd.read_csv('Example/example.csv', index_col=0, )
     data = []
     d = []
     for x in df['微博正文']:
@@ -74,7 +74,7 @@ def extract_keywords():
 
 if __name__ == "__main__":
     data, d = extract_keywords()
-    # print(data)
+    # print(SOPMI_data)
     # print(d)
     pairs = zip(d, data)
     pairs = sorted(pairs, reverse=True)
@@ -83,7 +83,7 @@ if __name__ == "__main__":
     result = [x[1] for x in pairs]
     print(result)
 
-    file = open('示例关键词.txt', 'a+', encoding='utf-8')
+    file = open('data/示例关键词.txt', 'a+', encoding='utf-8')
     for i in range(100):
         file.write(str(result[i]) + '\n')
     file.close()

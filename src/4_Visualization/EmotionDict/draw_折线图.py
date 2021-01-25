@@ -26,7 +26,7 @@ y_data = ['1.6603', '2.5563', '4.5729', '3.4913', '2.5449', '5.3985', '8.6268', 
 
 def line_with_mark_area():
     line = Line(init_opts=opts.InitOpts(theme='essos',
-                                        width='1200px',
+                                        width='1600px',
                                         height='450px'))
     line.add_xaxis(x_data)
     line.add_yaxis('百天情感趋势图', y_data)

@@ -50,7 +50,7 @@ def sent2word(sentence):
     segResult = []
     for w in segList:
         segResult.append(w)
-    stopwords = readStop('stop_words.txt')
+    stopwords = readStop('dict/stop_words.txt')
     newSent = []
     for word in segResult:
         if word + '\n' in stopwords:
@@ -109,11 +109,11 @@ def readLines2(filename):
 
 
 def words():
-    le = readLines2('乐.txt')
-    hao = readLines2('好.txt')
-    ai = readLines2('哀.txt')
-    wu = readLines2('恶.txt')
-    ju = readLines2('惧.txt')
+    le = readLines2('dict/乐.txt')
+    hao = readLines2('dict/好.txt')
+    ai = readLines2('dict/哀.txt')
+    wu = readLines2('dict/恶.txt')
+    ju = readLines2('dict/惧.txt')
     return [le, hao, ai, wu, ju]
 
 
@@ -181,7 +181,7 @@ def text_save(filename, data):
 
 
 if __name__ == "__main__":
-    filepwd = eachFile("test")
+    filepwd = eachFile("data")
     score_var = []
     words_vaule = words()
     for x in filepwd:
@@ -196,5 +196,5 @@ if __name__ == "__main__":
                 score_var.append(data_1)
             i = i + 1
         i = 0
-        text_save(x.replace('test', 'result'), score_var)
+        text_save(x.replace('data', 'result'), score_var)
         score_var = []

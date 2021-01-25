@@ -136,9 +136,9 @@ def feature_reduction(matrix, pca_n_components=50, tsne_n_components=2):
     return data_pca_tsne
 
 
-# def test(n):
+# def data(n):
 if __name__ == '__main__':
-    filepath = 'sample_data.csv'
+    filepath = 'example_data.csv'
     df = pd.read_csv(filepath, index_col=0, )
     preProcess(df)
     word_library_list = list(set(flat((df['content_cut']))))

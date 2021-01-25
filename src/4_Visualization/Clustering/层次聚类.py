@@ -137,5 +137,5 @@ def func(file):
 
 
 if __name__ == "__main__":
-    file = eachFile('test')
+    file = eachFile('data')
     func(file[0])

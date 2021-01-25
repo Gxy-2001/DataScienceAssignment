@@ -50,7 +50,7 @@ def sent2word(sentence):
     segResult = []
     for w in segList:
         segResult.append(w)
-    stopwords = readStop('stop_words.txt')
+    stopwords = readStop('dict/stop_words.txt')
     newSent = []
     for word in segResult:
         if word + '\n' in stopwords:
@@ -109,18 +109,18 @@ def readLines2(filename):
 
 
 def words():
-    senList = readLines2('BosonNLP_sentiment_score.txt')
+    senList = readLines2('dict/BosonNLP_sentiment_score.txt')
     senDict = defaultdict()
     for s in senList:
         senDict[s.split(' ')[0]] = s.split(' ')[1]
 
-    exList = readLines2('extra.txt')
+    exList = readLines2('dict/extra.txt')
     exDict = defaultdict()
     for x in exList:
         exDict[x.split(' ')[0]] = x.split(' ')[1]
 
-    notList = readLines2('notDict.txt')
-    degreeList = readLines2('degreeDict.txt')
+    notList = readLines2('dict/notDict.txt')
+    degreeList = readLines2('dict/degreeDict.txt')
     degreeDict = defaultdict()
     for d in degreeList:
         degreeDict[d.split(' ')[0]] = d.split(' ')[1]
@@ -182,26 +182,26 @@ def text_save(filename, data):
 
 
 if __name__ == "__main__":
-    # filepwd = eachFile("test")
-    # score_var = []
-    # words_vaule = words()
-    # for x in filepwd:
-    #     data, fens = readLines(x)
-    #     i = 0
-    #     for d in data:
-    #         if (str(fens[i]).isdigit() and int(fens[i]) < 10000) or (
-    #                 str(fens[i]).count(".") == 1 and not str(fens[i]).startswith(".") and not str(fens[i]).endswith(
-    #                 ".") and float(fens[i]) < 10000):
-    #             datafen = sent2word(d)
-    #             datafen_dist = listToDist(datafen)
-    #             data_1 = classifyWords(datafen_dist, words_vaule[0], words_vaule[1], words_vaule[2], words_vaule[3])
-    #             data_2 = scoreSent(data_1[0], data_1[1], data_1[2], returnsegResult(data[0]))
-    #             if data_2 > 0.5 or data_2 < 0:
-    #                 score_var.append(data_2)
-    #         i = i + 1
-    #     i = 0
-    #     text_save(x.replace('test', 'result_comment'), score_var)
-    #     score_var = []
+    filepwd = eachFile("data")
+    score_var = []
+    words_vaule = words()
+    for x in filepwd:
+        SOPMI_data, fens = readLines(x)
+        i = 0
+        for d in SOPMI_data:
+            if (str(fens[i]).isdigit() and int(fens[i]) < 10000) or (
+                    str(fens[i]).count(".") == 1 and not str(fens[i]).startswith(".") and not str(fens[i]).endswith(
+                    ".") and float(fens[i]) < 10000):
+                datafen = sent2word(d)
+                datafen_dist = listToDist(datafen)
+                data_1 = classifyWords(datafen_dist, words_vaule[0], words_vaule[1], words_vaule[2], words_vaule[3])
+                data_2 = scoreSent(data_1[0], data_1[1], data_1[2], returnsegResult(SOPMI_data[0]))
+                if data_2 > 0.5 or data_2 < 0:
+                    score_var.append(data_2)
+            i = i + 1
+        i = 0
+        text_save(x.replace('data', 'result_comment'), score_var)
+        score_var = []
 
     # files = eachFile('result_comment')
     # file = open('评论result.txt', 'a+', encoding='utf-8')
@@ -219,9 +219,9 @@ if __name__ == "__main__":
     #             break
     #     file.write(x[t:-4] + "   " + str(sum / num) + '\n')
 
-    file = open('评论result.txt', 'r', encoding='utf-8')
-    l = file.read().split('\n')
-    file2 = open('评论差值.txt', 'a+', encoding='utf-8')
-    for x in l:
-        ls = x.split('  ')
-        file2.write(str(4.8832 - float(ls[1]) )+ '\n')
+    # file = open('评论result.txt', 'r', encoding='utf-8')
+    # l = file.read().split('\n')
+    # file2 = open('评论差值.txt', 'a+', encoding='utf-8')
+    # for x in l:
+    #     ls = x.split('  ')
+    #     file2.write(str(4.8832 - float(ls[1]) )+ '\n')

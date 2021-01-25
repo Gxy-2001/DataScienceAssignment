@@ -11,7 +11,7 @@ def eachFile(filepath):
 
 if __name__ == '__main__':
     files = eachFile('result')
-    file = open('../../4_Visualization/多维/data/result.txt', 'a+', encoding='utf-8')
+    file = open('../../4_Visualization/多维/SOPMI_data/result.txt', 'a+', encoding='utf-8')
     for x in files:
         fopen = open(x, 'r', encoding='utf-8')
         data = [0, 0, 0, 0, 0]

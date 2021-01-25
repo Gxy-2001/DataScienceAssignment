@@ -6,10 +6,10 @@ import pandas as pd
 
 class SoPmi:
     def __init__(self):
-        self.train_path = './data/train.txt'
-        self.candipos_path = './data/pos.txt'
-        self.candineg_path = './data/neg.txt'
-        self.sentiment_path = './data/sentiment_words.txt'
+        self.train_path = 'SOPMI_data/train.txt'
+        self.candipos_path = 'SOPMI_data/pos.txt'
+        self.candineg_path = 'SOPMI_data/neg.txt'
+        self.sentiment_path = 'SOPMI_data/sentiment_words.txt'
 
     '''分词'''
 
@@ -180,8 +180,8 @@ class SoPmi:
 if __name__ == "__main__":
     # sopmier = SoPmi()
     # sopmier.sopmi()
-    file = open('./data/pos.txt', encoding='utf-8')
-    file2 = open('extra.txt', 'a+', encoding='utf-8')
+    file = open('SOPMI_data/pos.txt', encoding='utf-8')
+    file2 = open('dict/extra.txt', 'a+', encoding='utf-8')
     df = file.read().split()
     data = []
     i = 0
@@ -190,7 +190,7 @@ if __name__ == "__main__":
         for k in range(10):
             if (df[i])[k] == ',':
                 break
-        # data.append((df[i])[0:k])
+        # SOPMI_data.append((df[i])[0:k])
         file2.write(df[i][0:k] + " 2\n")
         i = i + 1
     print(data)

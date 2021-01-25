@@ -36,7 +36,7 @@ def feature_reduction(matrix, pca_n_components=50, tsne_n_components=2):
 
 def func(num):
     mpl.rcParams['font.sans-serif'] = ['SimHei']
-    datapd = pd.read_csv('sample_data.csv', encoding='utf-8')
+    datapd = pd.read_csv('example_data.csv', encoding='utf-8')
     all_words = ""
 
     for line in datapd['content']:
@@ -58,7 +58,7 @@ def func(num):
 
     cut_words = ""
     f = open('key.txt', 'w', encoding='utf-8')
-    datapd = pd.read_csv('sample_data.csv', encoding='utf-8')
+    datapd = pd.read_csv('example_data.csv', encoding='utf-8')
     for line in datapd['content']:
         line = str(line)
         seg_list = jieba.cut(line, cut_all=False)
@@ -129,9 +129,9 @@ def func(num):
 
 
 if __name__ == "__main__":
-    # data = []
+    # SOPMI_data = []
     # file = open('类数.txt', 'a+', encoding='utf-8')
     # for i in range(2, 10):
-    #     data = func(i)
-    #     file.write(str(i) + " " + str(data[0]) + " " + str(data[1]) + " " + str(data[2]))
+    #     SOPMI_data = func(i)
+    #     file.write(str(i) + " " + str(SOPMI_data[0]) + " " + str(SOPMI_data[1]) + " " + str(SOPMI_data[2]))
     func(3)
