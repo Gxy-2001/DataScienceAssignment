@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Awesome-pyecharts</title>
+            <script type="text/javascript" src="https://assets.pyecharts.org/assets/echarts.min.js"></script>
+
+</head>
+<body>
+    <div id="910b89d8b43b46e8977975e06c420e7e" class="chart-container" style="width:1000px; height:600px;"></div>
+    <script>
+        var chart_910b89d8b43b46e8977975e06c420e7e = echarts.init(
+            document.getElementById('910b89d8b43b46e8977975e06c420e7e'), 'light', {renderer: 'canvas'});
+        var option_910b89d8b43b46e8977975e06c420e7e = {
+    "animation": true,
+    "animationThreshold": 2000,
+    "animationDuration": 1000,
+    "animationEasing": "cubicOut",
+    "animationDelay": 0,
+    "animationDurationUpdate": 300,
+    "animationEasingUpdate": "cubicOut",
+    "animationDelayUpdate": 0,
+    "series": [
+        {
+            "type": "pie",
+            "clockwise": true,
+            "data": [
+                {
+                    "name": "q",
+                    "value": 1
+                },
+                {
+                    "name": "w",
+                    "value": 1
+                },
+                {
+                    "name": "e",
+                    "value": 3
+                },
+                {
+                    "name": "r",
+                    "value": 4
+                }
+            ],
+            "radius": [
+                "40%",
+                "75%"
+            ],
+            "center": [
+                "50%",
+                "50%"
+            ],
+            "label": {
+                "show": true,
+                "position": "top",
+                "color": "red",
+                "margin": 8,
+                "interval": 1,
+                "fontSize": 12,
+                "fontStyle": "italic",
+                "fontFamily": "Arial",
+                "formatter": "{b}:{d}%"
+            },
+            "rippleEffect": {
+                "show": true,
+                "brushType": "stroke",
+                "scale": 2.5,
+                "period": 4
+            }
+        }
+    ],
+    "legend": [
+        {
+            "data": [
+                "q",
+                "w",
+                "e",
+                "r"
+            ],
+            "selected": {}
+        }
+    ],
+    "tooltip": {
+        "show": true,
+        "trigger": "item",
+        "triggerOn": "mousemove|click",
+        "axisPointer": {
+            "type": "line"
+        },
+        "showContent": true,
+        "alwaysShowContent": false,
+        "showDelay": 0,
+        "hideDelay": 100,
+        "textStyle": {
+            "fontSize": 14
+        },
+        "borderWidth": 0,
+        "padding": 5
+    }
+};
+        chart_910b89d8b43b46e8977975e06c420e7e.setOption(option_910b89d8b43b46e8977975e06c420e7e);
+    </script>
+</body>
+</html>
