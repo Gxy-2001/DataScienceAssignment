@@ -10,7 +10,9 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 
 
-def clean_text(text, name=True, ):
+def clean_text(text, name=False, ):
+    if text == '':
+        return ''
     if name:
         for i in range(len(text)):
             if text[i] == ':' or text[i] == '：':
@@ -68,7 +70,7 @@ def pseg_cut(x):
 
 
 def preProcess(df):
-    df['content'] = df['content'].map(lambda x: clean_text(x))
+    df['content'] = df['微博正文'].map(lambda x: clean_text(x))
     df['content_cut'] = df['content'].map(lambda x: pseg_cut(x))
     df['content_cut'] = df['content_cut'].map(lambda x: get_words_by_flags(
         x, flags=['n.*', 'v.*', 'eng', 't', 's', 'j', 'l', 'i']))
@@ -115,6 +117,40 @@ def label2rank(labels_list):
     return rank_list
 
 
+def get_num_of_value_no_repeat(list1):
+    num = len(set(list1))
+    return num
+
+
+def draw_clustering_analysis_barh(rank_num, value, yticks, title, t):
+    """绘制聚类分析结果条形图"""
+    plt.figure(figsize=(13, 6), dpi=100)
+    plt.subplot(122)
+    ax = plt.gca()
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.invert_yaxis()
+    plt.barh(range(1, rank_num + 1), value, align='center', linewidth=0)
+    plt.yticks(range(1, rank_num + 1), yticks)
+    for a, b in zip(value, range(1, rank_num + 1)):
+        plt.text(a + 1, b, '%.0f' % a, ha='left', va='center')
+    plt.title(title)
+    plt.savefig('img/' + str(t) + '/2.jpg')
+    #plt.show()
+
+
+def draw_clustering_analysis_pie(rank_num, value, yticks, title, t):
+    """绘制聚类分析结果饼图"""
+    plt.figure(figsize=(13, 6), dpi=100)
+    plt.subplot(132)
+    plt.pie(value, explode=[0.2] * rank_num, labels=yticks, autopct='%1.2f%%', pctdistance=0.7)
+    plt.title(title)
+    plt.savefig('img/' + str(t) + '/1.jpg')
+
+   #plt.show()
+
+
 def feature_reduction(matrix, pca_n_components=50, tsne_n_components=2):
     data_pca = PCA(n_components=pca_n_components).fit_transform(matrix) if pca_n_components is not None else matrix
     data_pca_tsne = TSNE(n_components=tsne_n_components).fit_transform(
@@ -123,8 +159,15 @@ def feature_reduction(matrix, pca_n_components=50, tsne_n_components=2):
     return data_pca_tsne
 
 
-if __name__ == '__main__':
-    filepath = 'example_data.csv'
+def get_most_common_words(list1, top_n=None, min_frequency=1):
+    list2 = flat(list1)
+    cnt = Counter(list2)
+    list3 = [i[0] for i in cnt.most_common(top_n) if cnt[i[0]] >= min_frequency]
+    return list3
+
+
+def fun(ttt):
+    filepath = '热门微博.csv'
     df = pd.read_csv(filepath, index_col=0, )
     preProcess(df)
     word_library_list = list(set(flat((df['content_cut']))))
@@ -132,7 +175,7 @@ if __name__ == '__main__':
     max_features = (len(word_library_list) - len(single_frequency_words_list))
     matrix = feature_extraction(df['content_'],
                                 vec_args={'max_df': 0.95, 'min_df': 1, 'max_features': max_features})
-    kmeans = KMeans(n_clusters=2, random_state=9).fit(matrix)
+    kmeans = KMeans(n_clusters=ttt, random_state=9).fit(matrix)
 
     score = metrics.calinski_harabasz_score(matrix.toarray(), kmeans.labels_)
     print(score)
@@ -162,5 +205,20 @@ if __name__ == '__main__':
     x = [i[0] for i in data_pca_tsne]
     y = [i[1] for i in data_pca_tsne]
     plt.scatter(x, y, c=label)
-    plt.savefig('kmeans示例.jpg')
+    plt.savefig('img/' + str(ttt) + '/聚类效果.jpg')
     plt.show()
+
+    rank_num = get_num_of_value_no_repeat(df_non_outliers['rank'])
+    value = [df_non_outliers[df_non_outliers['rank'] == i].shape[0] for i in range(1, rank_num + 1)]
+    yticks1 = [str(get_most_common_words(df_non_outliers[df_non_outliers['rank'] == i]['content_cut'],
+                                         top_n=10)) + str(i) for i in range(1, rank_num + 1)]
+
+    draw_clustering_analysis_barh(rank_num, value, yticks1, title='热点条形图', t=ttt)
+    draw_clustering_analysis_pie(rank_num, value, yticks1, title='热点饼图', t=ttt)
+
+
+if __name__ == '__main__':
+    i = 2
+    while i <= 10:
+        fun(i)
+        i = i + 1

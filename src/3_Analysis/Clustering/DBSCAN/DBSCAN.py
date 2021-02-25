@@ -73,8 +73,7 @@ def get_num_en_ch(x):
 
 
 def preProcess(df):
-    df['content'] = df['content'].map(lambda x: clean_text(x))
-    df['content_'] = df['content'].map(lambda x: get_num_en_ch(x))
+    df['content'] = df['微博正文'].map(lambda x: clean_text(x))
     df['content_cut'] = df['content'].map(lambda x: pseg_cut(x))
     df['content_cut'] = df['content_cut'].map(lambda x: get_words_by_flags(
         x, flags=['n.*', 'v.*', 'eng', 't', 's', 'j', 'l', 'i']))
@@ -135,10 +134,41 @@ def feature_reduction(matrix, pca_n_components=50, tsne_n_components=2):
     print('data_pca_tsne.shape=', data_pca_tsne.shape)
     return data_pca_tsne
 
+def get_num_of_value_no_repeat(list1):
+    num = len(set(list1))
+    return num
+
+def draw_clustering_analysis_barh(rank_num, value, yticks, title):
+    """绘制聚类分析结果条形图"""
+    plt.figure(figsize=(13, 6), dpi=100)
+    plt.subplot(122)
+    ax = plt.gca()
+    ax.spines['left'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['top'].set_visible(False)
+    ax.invert_yaxis()
+    plt.barh(range(1, rank_num + 1), value, align='center', linewidth=0)
+    plt.yticks(range(1, rank_num + 1), yticks)
+    for a, b in zip(value, range(1, rank_num + 1)):
+        plt.text(a + 1, b, '%.0f' % a, ha='left', va='center')
+    plt.title(title)
+    plt.savefig('2.jpg')
+    plt.show()
+
+
+def draw_clustering_analysis_pie(rank_num, value, yticks, title):
+    """绘制聚类分析结果饼图"""
+    plt.figure(figsize=(13, 6), dpi=100)
+    plt.subplot(132)
+    plt.pie(value, explode=[0.2] * rank_num, labels=yticks, autopct='%1.2f%%', pctdistance=0.7)
+    plt.title(title)
+    plt.savefig('1.jpg')
+    plt.show()
+
 
 # def data(n):
 if __name__ == '__main__':
-    filepath = 'example_data.csv'
+    filepath = '2074685151.csv'
     df = pd.read_csv(filepath, index_col=0, )
     preProcess(df)
     word_library_list = list(set(flat((df['content_cut']))))
@@ -146,7 +176,7 @@ if __name__ == '__main__':
     max_features = (len(word_library_list) - len(single_frequency_words_list))
     matrix = feature_extraction(df['content_'],
                                 vec_args={'max_df': 0.95, 'min_df': 1, 'max_features': max_features})
-    eps_var = 0.01
+    eps_var = 0.05
     min_samples_var = 5
     dbscan = DBSCAN(eps=eps_var, min_samples=min_samples_var, metric='cosine').fit(matrix)
     score = metrics.calinski_harabasz_score(matrix.toarray(), dbscan.labels_)
@@ -184,3 +214,11 @@ if __name__ == '__main__':
     plt.scatter(x, y, c=label)
     plt.savefig('DBSCAN示例.jpg')
     plt.show()
+
+    rank_num = get_num_of_value_no_repeat(df_non_outliers['rank'])
+    value = [df_non_outliers[df_non_outliers['rank'] == i].shape[0] for i in range(1, rank_num + 1)]
+    yticks1 = [str(get_most_common_words(df_non_outliers[df_non_outliers['rank'] == i]['content_cut'],
+                                         top_n=10)) + str(i) for i in range(1, rank_num + 1)]
+
+    draw_clustering_analysis_barh(rank_num, value, yticks1, title='热点条形图')
+    draw_clustering_analysis_pie(rank_num, value, yticks1, title='热点饼图')
